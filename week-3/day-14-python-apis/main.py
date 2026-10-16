@@ -5,38 +5,76 @@
 
 import requests
 import os
+from dotenv import load_dotenv
 
-# Load your API key from the environment (never hardcode it here).
-# Copy .env.example to .env and fill in your key before running.
+# Load environment variables from the .env file
+load_dotenv()
+
 API_KEY = os.getenv("API_KEY", "")
-BASE_URL = ""  # TODO: set your chosen API's base URL
+BASE_URL = "https://api.openweathermap.org/data/2.5/weather"
 
 
 # ── Step 1: Fetch Data ────────────────────────────────────────────────────────
-# Make a GET request to the API and return the parsed JSON response.
-# Handle network errors and non-200 status codes gracefully.
-
 def fetch_data(query):
-    # TODO: build params dict and call requests.get()
-    # TODO: check response.status_code before calling .json()
-    pass
+    if not API_KEY:
+        print("Error: API_KEY is missing. Please check your .env configuration.")
+        return None
+
+    params = {
+        "q": query,
+        "appid": API_KEY,
+        "units": "metric"
+    }
+
+    try:
+        response = requests.get(BASE_URL, params=params)
+        
+        if response.status_code == 200:
+            return response.json()
+        elif response.status_code == 401:
+            print("Error: Invalid API Key. Please verify your key in the .env file.")
+        elif response.status_code == 404:
+            print(f"Error: Location '{query}' not found. Please try another search query.")
+        else:
+            print(f"Error: Received unexpected status code {response.status_code}")
+            
+    except requests.exceptions.RequestException as e:
+        print(f"Network error occurred: {e}")
+        
+    return None
 
 
 # ── Step 2: Parse and Display ─────────────────────────────────────────────────
-# Extract at least 3 useful pieces of information from the response.
-# Print them in a clear, labelled format — not raw JSON.
-
 def display_results(data):
-    # TODO: navigate the JSON structure and print each field with a label
-    pass
+    try:
+        city = data.get("name", "Unknown")
+        country = data.get("sys", {}).get("country", "")
+        description = data["weather"][0]["description"].capitalize()
+        temp = data["main"]["temp"]
+        feels_like = data["main"]["feels_like"]
+        humidity = data["main"]["humidity"]
+
+        print("\n" + "="*45)
+        print(f"      WEATHER REPORT FOR {city.upper()}, {country}")
+        print("="*45)
+        print(f"  • Condition   : {description}")
+        print(f"  • Temperature : {temp}°C (Feels like {feels_like}°C)")
+        print(f"  • Humidity    : {humidity}%")
+        print("="*45 + "\n")
+        
+    except (KeyError, IndexError) as e:
+        print(f"Error parsing the API response structure: {e}")
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 def main():
-    query = input("Enter your search query: ")
-    data = fetch_data(query)
-    if data:
-        display_results(data)
+    query = input("Enter city name for weather search: ").strip()
+    if query:
+        data = fetch_data(query)
+        if data:
+            display_results(data)
+    else:
+        print("Search query cannot be empty.")
 
 
 if __name__ == "__main__":

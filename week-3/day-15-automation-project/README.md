@@ -1,28 +1,13 @@
 # Day 15 — Python Automation Project
 
 ## What does this project do?
-
-<!-- Describe your project in 2-3 sentences. What problem does it solve? What does it automate? -->
+This project automates the data preprocessing pipeline by reading a raw, messy CSV file, standardizing column headers, stripping extra whitespace from text values, and automatically removing duplicate rows. It saves the final polished dataset into a dedicated output folder.
 
 ## Project Type
-
-<!-- State which option you chose: File Organiser / Report Generator / Data Cleaner -->
+Data Cleaner
 
 ## Requirements
-
-<!-- List any Python libraries needed beyond the standard library -->
-
-```
-# example
-pip install <library-name>
-```
-
-## How to run
+This project uses Python's built-in standard libraries (`csv` and `os`), so no external package installation is required.
 
 ```bash
-python main.py
-```
-
-## Example output
-
-<!-- Paste or screenshot the output your script produces when run on the sample data -->
+# No external libraries needed
